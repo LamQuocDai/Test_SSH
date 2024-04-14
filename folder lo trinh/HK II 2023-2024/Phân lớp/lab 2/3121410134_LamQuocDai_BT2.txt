@@ -1,0 +1,197 @@
+CRUD class:
+public class CRUD {
+    private ArrayList<Student> studentList = new ArrayList<>();
+    private ReadWriteFile readWriteFile = new ReadWriteFile();
+
+    public ArrayList<Student> getStudentList() {
+        return studentList;
+    }
+
+    public void setStudentList(ArrayList<Student> studentList) {
+        this.studentList = studentList;
+    }
+    
+    public ArrayList<Student> read() {
+        return readWriteFile.read();
+    }
+    
+    public void add(Student student) {
+        studentList.add(student);
+        readWriteFile.write(studentList);
+    }
+    
+    public void edit(Student student) {
+        studentList.set(getIndex(student), student);
+        readWriteFile.write(studentList);
+    }
+    
+    public void delete(Student student) {
+        studentList.remove(getIndex(student));
+        readWriteFile.write(studentList);
+    }
+    
+    public int getIndex(Student student) {
+        int index = -1;
+        for (int i = 0; i < studentList.size(); i++) {
+            if (studentList.get(i).getId() == student.getId()) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+    
+    public void show() {
+        for (Student student: studentList) {
+            System.out.format("5d", student.getId()); 
+            System.out.format ("20", student.getName());
+            System.out.format ("5d", student.getAge());
+            System.out.format ("120g", student.getAddress());
+            System.out.format ("110.1f\n", student.getGpa());
+        }
+        System.out.println("");
+    }
+    
+    public void input(){
+        int id = 0;
+        if (studentList.size() == 0 || list == null){
+            id = 1;
+        }
+        else {
+            id = studentList.size() + 1;
+        }
+	  System.out.print("Input name: ");
+        String name = scanner.nextLine();
+        System.out.print("Input age: ");
+        byte age = Byte.parseByte(scanner.nextLine());
+        System.out.print("Input address: ");
+        String address = scanner.nextLine();
+        System.out.print("Input gpa: ");
+        float gpa = Float.parseFloat(scanner.nextLine());
+        Student student = new Student(id, name, age, address, gpa);
+        add(student);
+        studentList = read();
+        setStudentList(studentList);
+    }
+
+}
+
+class main:
+public class Lap2 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        CRUD crud = new CRUD();
+        ArrayList<Student> studentList = crud.read();
+        crud.setStudentList(studentList);
+
+        while (true) {
+            System.out.println("====================== Menu =======================");
+            System.out.println("1. Add student");
+            System.out.println("2. Edit student");
+            System.out.println("3. Delete student");
+            System.out.println("4. Show");
+            System.out.println("5. Exit");
+            System.out.println("Enter your choice: ");
+            System.out.println("====================== END =======================");
+
+            int choice = Integer.parseInt(scanner.nextLine());
+
+            switch (choice) {
+                case 1:
+                    System.out.print("New id of student: ");
+			  crud.input();
+                    System.out.println("\nSuccessful !!!");
+                    break;
+                case 2:
+                    System.out.println("Choose student:");
+                    System.out.print("Input ID: ");
+                    int selected_id = Integer.parseInt(scanner.nextLine());
+                    Student selected_student = null;
+                    for (Student a : studentList) {
+                        if (a.getId() == selected_id) {
+                            selected_student = a;
+                            break;
+                        }
+                    }
+                    if (selected_student == null) {
+                        System.out.println("Student whit id: " + selected_id + " does not exist !!!");
+                        break;
+                    }
+                    while (true) {
+                        System.out.println("================== Edit Menu ====================");
+                        System.out.println("1. Edit name");
+                        System.out.println("2. Edit age");
+                        System.out.println("3. Edit address");
+                        System.out.println("4. Edit gpa");
+                        System.out.println("5. Exit editing");
+                        System.out.println("Enter your choice: ");
+                        System.out.println("====================== END =======================");
+
+                        int choice1 = Integer.parseInt(scanner.nextLine());
+
+                        switch (choice) {
+                            case 1:
+                                selected_student.setName(scanner.nextLine());
+                                crud.edit(selected_student);
+                                studentList = crud.read();
+                                crud.setStudentList(studentList);
+                                break;
+                            case 2:
+                                selected_student.setAge(Byte.parseByte(scanner.nextLine()));
+                                crud.edit(selected_student);
+                                studentList = crud.read();
+                                crud.setStudentList(studentList);
+                                break;
+                            case 3:
+                                selected_student.setAddress(scanner.nextLine());
+                                crud.edit(selected_student);
+                                studentList = crud.read();
+                                crud.setStudentList(studentList);
+                                break;
+                            case 4:
+                                selected_student.setGpa(Float.parseFloat(scanner.nextLine()));
+                                crud.edit(selected_student);
+                                studentList = crud.read();
+                                crud.setStudentList(studentList);
+                                break;
+                            case 5:
+                                System.out.println("Exiting edit!");
+                                scanner.close();
+                            default:
+                                System.out.println("Invalid choice. Please enter a valid option.");
+                        }
+                    }
+                case 3:
+                    System.out.println("Choose student:");
+                    System.out.print("Input ID: ");
+                    selected_id = Integer.parseInt(scanner.nextLine());
+                    selected_student = null;
+                    for (Student a : studentList) {
+                        if (a.getId() == selected_id) {
+                            selected_student = a;
+                            break;
+                        }
+                    }
+                    if (selected_student == null) {
+                        System.out.println("Student whit id: " + selected_id + " does not exist !!!");
+                        break;
+                    }
+                    else {
+                        crud.delete(selected_student);
+                        studentList = crud.read();
+                    }
+                    break;
+                case 4:
+                    System.out.println("Student list:");
+                    crud.show();
+                    break;
+                case 5:
+                    System.out.println("Exiting the program. Goodbye!");
+                    scanner.close();
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please enter a valid option.");
+            }
+        }
+    }
+}

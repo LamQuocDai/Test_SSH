@@ -1,0 +1,1 @@
+ELECT * FROM movies WHERE CONCAT_WS(movies.movie_name, ' ',movies.description) LIKE CONCAT('%','Family','%')

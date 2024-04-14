@@ -1,0 +1,186 @@
+//Lớp DAL
+public class ConnectionDB {
+    protected String url = "jdbc:mysql://localhost:3306/School";
+    protected String user = "root";
+    protected String password = "";
+    protected Connection connection = null;
+    
+    protected Connection getConnection() {
+        try {
+		String url = "jdbc:mysql://localhost:3306/School";
+    		String user = "root";
+    		String password = "";
+   		Connection connection = null;
+            connection = DriverManager.getConnection(url, user, password);
+            if (connection != null) {
+                System.out.println("Connected success");
+                // Perform your database operations here
+            } else {
+                System.out.println("Failed");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return connection;
+    }
+    
+}
+
+import DAL.ConnectionDB;
+public class baseDAL{
+    Connection conn = null;
+
+    
+    protected ResultSet selectAll(String tableName) {
+	  ConnectionDB connectionDB = new ConnectionDB();
+        conn = connectionDB.getConnection();
+        String query = "SELECT * FROM " + tableName;
+        ResultSet resultSet = null;
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return resultSet;
+    }
+    
+}
+
+import DAL.baseDAL
+public class personDAL{
+    private String tableName = "person";
+    private baseDAL basedal;
+
+    public personDAL() {
+	  basedal = new baseDAl();
+    }
+    
+    public ArrayList<personDTO> getAllPerson() {
+       
+        ResultSet resultSet = basedal.selectAll(tableName);
+        ArrayList<personDTO> resultList = new ArrayList<>();
+        try {
+            while (resultSet.next()) {
+                int personID = resultSet.getInt("PersonID");
+                String lastName = resultSet.getString("Lastname");
+                String firstName = resultSet.getString("Firstname");
+                Timestamp hireDate = resultSet.getTimestamp("HireDate");
+                Timestamp enrollmentDate = resultSet.getTimestamp("EnrollmentDate");
+                personDTO person = new personDTO(personID, lastName, firstName, hireDate, enrollmentDate);
+                resultList.add(person);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultList;
+    }
+    
+}
+
+//Lớp BLL
+import DAL.personDAL;
+public class personBLL {
+    private personDAL dal = new personDAL();
+    
+    public ArrayList<personDTO> getALLPerson() {
+        return dal.getAllPerson();
+    }
+    
+}
+
+//Lớp DTO
+public class personDTO{
+    private int personID;
+    private String lastName;
+    private String firstName;
+    private Timestamp hireDate;
+    private Timestamp enrollmentDate;
+
+    public personDTO() {
+    }
+
+    public personDTO(int personID, String lastName, String firstName, Timestamp hireDate, Timestamp enrollmentDate) {
+        this.personID = personID;
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.hireDate = hireDate;
+        this.enrollmentDate = enrollmentDate;
+    }
+
+    public int getPersonID() {
+        return personID;
+    }
+
+    public void setPersonID(int personID) {
+        this.personID = personID;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public Timestamp getHireDate() {
+        return hireDate;
+    }
+
+    public void setHireDate(Timestamp hireDate) {
+        this.hireDate = hireDate;
+    }
+
+    public Timestamp getEnrollmentDate() {
+        return enrollmentDate;
+    }
+
+    public void setEnrollmentDate(Timestamp enrollmentDate) {
+        this.enrollmentDate = enrollmentDate;
+    }
+
+    @Override
+    public String toString() {
+        return "personDTO{"
+                + "personID=" + personID
+                + ", lastName='" + lastName + '\''
+                + ", firstName='" + firstName + '\''
+                + ", hireDate=" + hireDate
+                + ", enrollmentDate=" + enrollmentDate
+                + '}';
+    }
+    
+}
+
+//run class này
+public class Test {
+
+    public static void main(String[] args) {
+        personBLL bll = new personBLL();
+        ArrayList<personDTO> listData = bll.getALLPerson();
+        for (personDTO eachPerson : listData) {
+            System.out.println(eachPerson.toString());
+        }
+    }
+}

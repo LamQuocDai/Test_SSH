@@ -1,0 +1,120 @@
+1. Annotation:
+- Device:
+@Data
+@Entity
+@Table(name = "thietbi",schema = "BLL")
+public class Device {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "thietbi_sequence")
+    @SequenceGenerator(name = "thietbi_sequence", sequenceName = "thietbi_sequence", allocationSize = 1, initialValue = 1000004)
+    @Column(name = "MaTB")
+    private Long id;
+    
+    @Column(name = "TenTB")
+    private String deviceName;
+    
+    @Column(name = "MoTaTB")
+    private String description;
+    
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "device")
+    private Set<UsageInfomation> usageInfomations;
+}
+
+
+2. File xml:
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+ 
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database setting -->
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/qlthanhvien?serverTimezone=UTC&amp;useUnicode=true&amp;characterEncoding=utf8</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password"></property>
+      <!-- JDBC connection pool (use the built-in) -->
+        <property name="connection.pool_size">4</property>    
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+        <!-- Disable the second-level cache -->
+        <property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property> 
+        <!-- Show all executed SQL to console -->
+        <property name="show_sql">true</property>
+        <!-- Entity mapping -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <mapping package="BLL"/>
+        <mapping class="BLL.Device"/>
+    </session-factory>
+</hibernate-configuration>
+
+3. File HibernateUtil:
+package Utils;
+
+import BLL.Member;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+
+
+public class HibernateUtil {
+
+    private static final SessionFactory sessionFactory = getSessionFactory();
+
+    public static SessionFactory getSessionFactory() {
+        StandardServiceRegistry registry = new StandardServiceRegistryBuilder().configure().build();
+        // Tạo Metadata từ Service Registry
+        Metadata metadata = new MetadataSources(registry).getMetadataBuilder().build();
+        return metadata.getSessionFactoryBuilder().build();
+    }
+
+    public static void close(){
+        getSessionFactory().close();
+    }
+}
+
+4.Xem, thêm, xóa, sửa (Device)
+- Xem:
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Device> query = session.createQuery("FROM Device");
+            List<Device> devices = query.list();
+
+            devices.forEach(c -> System.out.println("Mã thiết bị: " + c.getId() + " Tên thiết bị: " + c.getDeviceName()));
+        }
+
+- Thêm:
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            session.getTransaction().begin();
+
+            Device d = new Device();
+            d.setId(Long.parseLong("0001"));
+            d.setDeviceName("Fan");
+            d.setDescription("Himelo Company");
+
+            session.save(d);
+            session.getTransaction().commit();
+        }
+
+- Xóa:
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            session.getTransaction().begin();
+
+            Device d = session.get(Device.class, Long.parseLong("1000004"));
+
+            session.delete(d);
+            session.getTransaction().commit();
+        }
+
+- Cập nhật:
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            session.getTransaction().begin();
+            
+            Device d = session.get(Device.class, Long.parseLong("1000004"));
+            d.setDescription("Senko Label");
+
+            session.update(d);
+            session.getTransaction().commit();
+        }
